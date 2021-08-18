@@ -60,6 +60,7 @@ func TestAccCreateUpdateOrgToken(t *testing.T) {
 					testAccCheckOrgTokenResourceExists,
 					resource.TestCheckResourceAttr("signalfx_org_token.myorgtokenTOK1", "name", "FarToken"),
 					resource.TestCheckResourceAttr("signalfx_org_token.myorgtokenTOK1", "description", "Farts"),
+					resource.TestCheckResourceAttr("signalfx_org_token.myorgtokenTOK1", "secret"),
 				),
 			},
 			{

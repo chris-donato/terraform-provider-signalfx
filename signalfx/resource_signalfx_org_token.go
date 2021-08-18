@@ -235,7 +235,7 @@ func orgTokenCreate(d *schema.ResourceData, meta interface{}) error {
 
 func orgTokenAPIToTF(d *schema.ResourceData, t *orgtoken.Token) error {
 	debugOutput, _ := json.Marshal(t)
-	log.Printf("[DEBUG] SignalFx: Got Org Token to enState: %s", string(debugOutput))
+	log.Printf("[DEBUG] SignalFx HOLY CRAP: Got Org Token to enState: %s", string(debugOutput))
 
 	if err := d.Set("name", t.Name); err != nil {
 		return err
@@ -246,8 +246,13 @@ func orgTokenAPIToTF(d *schema.ResourceData, t *orgtoken.Token) error {
 	if err := d.Set("disabled", t.Disabled); err != nil {
 		return err
 	}
-
+	log.Printf("[DEBUG] SignalFx: D looks like before : %v", d)
+	log.Printf("[DEBUG] SignalFx: ** BEFORE Limits Block**")
+	log.Printf("[DEBUG] SignalFx: T looks like: %v", t)
+	log.Printf("[DEBUG] SinalFx: t.Limits: %w", t.Limits)
+	log.Printf("[DEBUG] SinalFx: t.Limits not nil: %w", (t.Limits != nil))
 	if t.Limits != nil {
+		log.Printf("[DEBUG] SignalFx: ** IN Limits Block**")
 		limits := t.Limits
 		if limits.DpmQuota != nil {
 			dpmStuff := map[string]interface{}{
@@ -298,6 +303,7 @@ func orgTokenAPIToTF(d *schema.ResourceData, t *orgtoken.Token) error {
 			}
 		}
 
+		log.Printf("[DEBUG] SignalFx: ** IN Limits Block before Notifications **")
 		notifications := make([]string, len(t.Notifications))
 		for i, not := range t.Notifications {
 			tfNot, err := getNotifyStringFromAPI(not)
@@ -306,14 +312,17 @@ func orgTokenAPIToTF(d *schema.ResourceData, t *orgtoken.Token) error {
 			}
 			notifications[i] = tfNot
 		}
+		log.Printf("[DEBUG] SignalFx: ** IN Limits Block before Notifications set **")
 		if err := d.Set("notifications", notifications); err != nil {
 			return err
 		}
-
-		if err := d.Set("secret", t.Secret); err != nil {
-			return err
-		}
+	} // <-  moving this if block closure above secret set fixes issue
+	log.Printf("[DEBUG] SignalFx: Secret looks like before set: %v", t.Secret)
+	log.Printf("[DEBUG] SignalFx: D looks like before set: %v", d)
+	if err := d.Set("secret", t.Secret); err != nil {
+		return err
 	}
+	log.Printf("[DEBUG] SignalFx: D looks like after set: %v", d)
 
 	return nil
 }
