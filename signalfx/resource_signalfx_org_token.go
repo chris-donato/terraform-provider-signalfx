@@ -123,6 +123,11 @@ func orgTokenResource() *schema.Resource {
 				Computed:  true,
 				Sensitive: true,
 			},
+			"expiry": &schema.Schema{
+				Type:      schema.TypeInt,
+				Computed:  true,
+				Sensitive: false,
+			},
 		},
 
 		Create: orgTokenCreate,
@@ -317,11 +322,18 @@ func orgTokenAPIToTF(d *schema.ResourceData, t *orgtoken.Token) error {
 			return err
 		}
 	} // <-  moving this if block closure above secret set fixes issue
+
 	log.Printf("[DEBUG] SignalFx: Secret looks like before set: %v", t.Secret)
 	log.Printf("[DEBUG] SignalFx: D looks like before set: %v", d)
+
 	if err := d.Set("secret", t.Secret); err != nil {
 		return err
 	}
+
+	if err := d.Set("expiry", t.Expiry); err != nil {
+		return err
+	}
+
 	log.Printf("[DEBUG] SignalFx: D looks like after set: %v", d)
 
 	return nil
